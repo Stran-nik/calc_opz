@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <!-- local CSS -->
+    <link rel="stylesheet" href="style.css">
+    <title>Калькулятор ОПЗ</title>
+</head>
+<body>
+<div class="content container">
+    <div class="row text-center">
+        <div class="col-md-4 offset-md-4">
+            <h2>Калькулятор обратной польской записи</h2>
+        </div>
+    </div>
+    <div class="row text-center">
+        <div class="col-md-4 offset-md-4">
+            <input type="text" class="form-control" id="calc-input" placeholder="Введите формулу">
+        </div>
+        <div id="result" class="col-md-4 offset-md-4 alert alert-success" style="display: none">
+        </div>
+        <div class="col-md-4 offset-md-4">
+            <button type="button" class="btn btn-primary" id="calc-button">Вычислить</button>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    const calcInput = document.querySelector('#calc-input');
+    const calcButton = document.querySelector('#calc-button');
+    const resultDiv = document.querySelector('#result');
+    const regExp = /[\+\-\*\/0-9\s]+/;
+
+    calcInput.value = '';
+
+    calcInput.addEventListener('keydown', (e) => {
+        if ((e.which === 8) ||
+            (e.which === 37) ||
+            (e.which === 39) ||
+            (e.which === 46)){
+            return true;
+        }
+
+        const res = regExp.test(e.key);
+
+        if (!res) {
+            e.preventDefault();
+        }
+
+        return res;
+    });
+
+    calcButton.addEventListener('click', () => {
+        let headers = new Headers();
+
+        headers.append('Content-type', 'application/json');
+
+        resultDiv.display = 'none';
+
+        fetch('/calc.php', {
+            method: 'POST',
+            headers: headers,
+            mode: 'same-origin',
+            body: JSON.stringify({str: calcInput.value})
+        }).then(response => {
+            if (response.status >= 400) {
+                return Promise.reject();
+            }
+
+            return response.json();
+        }).then(data => {
+            if (data.hasOwnProperty('result')) {
+                showResult(data.result);
+            } else if (data.hasOwnProperty('error')) {
+                showError(data.error);
+            }
+        }).catch((err) => {
+            showError(err.message);
+        })
+    });
+
+    function showResult(result) {
+        resultDiv.innerHTML = '<b>Результат:</b>&nbsp;' + result;
+        resultDiv.className = 'col-md-4 offset-md-4 alert alert-success';
+        resultDiv.style.display = 'block';
+    }
+
+    function showError(error) {
+        resultDiv.innerHTML = error;
+        resultDiv.className = 'col-md-4 offset-md-4 alert alert-danger';
+        resultDiv.style.display = 'block';
+    }
+</script>
+
+</body>
+</html>

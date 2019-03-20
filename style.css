@@ -1,0 +1,13 @@
+.content {
+    margin-top: 150px;
+}
+
+.content * {
+    margin-bottom: 10px;
+}
+
+@media (max-height: 480px) {
+    .content {
+        margin-top: 20px;
+    }
+}
