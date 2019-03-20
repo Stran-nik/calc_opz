@@ -32,6 +32,7 @@
 </div>
 
 <script type="text/javascript">
+    const backendUrl = '/calc.php';
     const calcInput = document.querySelector('#calc-input');
     const calcButton = document.querySelector('#calc-button');
     const resultDiv = document.querySelector('#result');
@@ -63,7 +64,7 @@
 
         resultDiv.display = 'none';
 
-        fetch('/calc.php', {
+        fetch(backendUrl, {
             method: 'POST',
             headers: headers,
             mode: 'same-origin',
